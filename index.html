@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir y procesar Excel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        /* Estilos personalizados para la tabla */
+        .table-custom {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .table-custom th {
+            background-color: #343a40; /* Color oscuro para la cabecera */
+            color: white;
+            font-weight: bold;
+        }
+        .table-custom tbody tr:hover {
+            background-color: #f8f9fa; /* Color de fondo al pasar el cursor */
+        }
+    </style>
+    <script>
+        function subirArchivo() {
+            let formData = new FormData(document.getElementById('uploadForm'));
+            fetch('process_excel.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('preview').innerHTML = html;
+                document.getElementById('uploadForm').reset();
+                let exportButton = document.getElementById('exportButton');
+                if (exportButton) {
+                    exportButton.addEventListener('click', exportarCsv);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function exportarCsv() {
+            fetch('process_excel.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'exportCsv=1'
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('preview').innerHTML = html;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</head>
+<body class="container mt-5">
+    <h2 class="text-center">Subir un archivo Excel</h2>
+    <form id="uploadForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); subirArchivo();" class="mb-3">
+        <div class="mb-3">
+            <input type="file" name="excelFile" accept=".xls,.xlsx" required class="form-control">
+        </div>
+        <button type="submit" class="btn btn-success">Subir</button>
+    </form>
+    <div id="preview"></div>
+</body>
+</html>
